@@ -9,11 +9,31 @@ class Vec2 {
     }
 }
 
+function clamp(n, min, max) {
+    if (n <= min) {
+        return min;
+    } else if (n >= max) {
+        return max;
+    } else {
+        return n;
+    }
+}
+
 //--------------//
 // GLOBAL STATE //
 //--------------//
 
-var playerPos = new Vec2(1440/2, 1080/2);
+var playerPos = new Vec2(720, 720);
+
+var board = {
+    left: 360,
+    right: 1080,
+    top: 540,
+    bottom: 1000,
+
+    width: function() { return this.right-this.left; },
+    height: function() { return this.bottom-this.top; },
+};
 
 var downPressed = false;
 var leftPressed = false;
@@ -25,12 +45,15 @@ var rightPressed = false;
 //------------------//
 
 function update() {
-    const speedMultiplier = 5;
+    const speedMultiplier = 8;
     
     if  (downPressed) playerPos.y += speedMultiplier;
     if    (upPressed) playerPos.y -= speedMultiplier;
     if  (leftPressed) playerPos.x -= speedMultiplier;
     if (rightPressed) playerPos.x += speedMultiplier;
+
+    playerPos.x = clamp(playerPos.x, board.left+25, board.right-25);
+    playerPos.y = clamp(playerPos.y, board.top+25, board.bottom-25);
 }
 
 function draw() {
@@ -41,13 +64,22 @@ function draw() {
     // Reset the canvas
     ctx.clearRect(0, 0, 1440, 1080);
 
+    // Debugging markers for the screen edges
+    ctx.fillStyle = "orange";
+    ctx.fillRect(10, 1075, 1430, 5);
+    ctx.fillStyle = "lime";
+    ctx.fillRect(1435, 10, 5, 1065);
+
+    drawBoard(ctx);
     drawPlayer(ctx);
 }
 
 function drawPlayer(ctx) {
-    const { x, y } = playerPos;
-    const path = new Path2D();
+    ctx.lineWidth = 1;
 
+    const { x, y } = playerPos;
+
+    const path = new Path2D();
     path.moveTo(x+2, y+20);
     path.lineTo(x+20, y);
     path.lineTo(x+20, y-10);
@@ -59,6 +91,16 @@ function drawPlayer(ctx) {
 
     ctx.fillStyle = "red";
     ctx.fill(path);
+}
+
+function drawBoard(ctx) {
+    ctx.lineWidth = 10;
+    ctx.strokeStyle = "white";
+    ctx.strokeRect(
+        board.left, board.top,
+        board.width(), board.height(),
+    );
+    ctx.lineWidth = 1;
 }
 
 // Should be called every 25ms (40 fps)
