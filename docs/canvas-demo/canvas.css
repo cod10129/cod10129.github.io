@@ -2,6 +2,8 @@ body {
   margin: 0;
   height: 100%;
   background-color: black;
+  display: flex;
+  align-items: center;
 }
 
 canvas {
@@ -10,4 +12,5 @@ canvas {
   aspect-ratio: 4/3;
   display: block;
   background-color: black;
+  margin: auto;
 }
