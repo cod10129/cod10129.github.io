@@ -41,12 +41,24 @@ function draw() {
     // Reset the canvas
     ctx.clearRect(0, 0, 1440, 1080);
 
-    // Draw player
-    ctx.beginPath();
-    ctx.arc(playerPos.x, playerPos.y, 30, 0, Math.PI * 2);
-    // ctx.closePath();
-    ctx.fillStyle = "#F00F";
-    ctx.fill();
+    drawPlayer(ctx);
+}
+
+function drawPlayer(ctx) {
+    const { x, y } = playerPos;
+    const path = new Path2D();
+
+    path.moveTo(x+2, y+20);
+    path.lineTo(x+20, y);
+    path.lineTo(x+20, y-10);
+    path.arc(x+10, y-10, 10, 0, Math.PI, true);
+    path.arc(x-10, y-10, 10, 0, Math.PI, true);
+    path.lineTo(x-20, y);
+    path.lineTo(x-2, y+20);
+    path.closePath();
+
+    ctx.fillStyle = "red";
+    ctx.fill(path);
 }
 
 // Should be called every 25ms (40 fps)
