@@ -25,6 +25,7 @@ function clamp(n, min, max) {
 
 var player = {
     pos: new Vec2(720, 770),
+    health: 50,
 
     hurtbox() {
         return new Rect(
@@ -74,6 +75,7 @@ function draw() {
     ctx.fillStyle = "lime";
     ctx.fillRect(1435, 10, 5, 1065);
 
+    drawHealthBar(ctx);
     drawBoard(ctx);
     drawPlayer(ctx);
 }
@@ -95,6 +97,22 @@ function drawPlayer(ctx) {
 
     ctx.fillStyle = "red";
     ctx.fill(path);
+}
+
+// Health maximum: 50
+function drawHealthBar(ctx) {
+    ctx.lineWidth = 1;
+
+    ctx.fillStyle = "red";
+    ctx.fillRect(620, 1020, 200, 40);
+    ctx.fillStyle = "yellow";
+    ctx.fillRect(620, 1020, player.health * 4, 40);
+
+    // Textual indicator
+    ctx.font = "48px 'Trouble Beneath The Dome', monospace";
+    ctx.fillStyle = "white";
+    const padded = String(player.health).padStart(2, '0');
+    ctx.fillText(`${padded} / 50`, 850, 1055);
 }
 
 function drawBoard(ctx) {
