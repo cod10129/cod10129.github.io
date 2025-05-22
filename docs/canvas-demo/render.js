@@ -52,6 +52,7 @@ var player = {
     pos: new Vec2(720, 770),
     health: 50,
     defense: 0,
+    invincibleTime: 0,
 
     hurtbox() {
         return new Rect(
@@ -60,8 +61,10 @@ var player = {
         );
     },
     damage(attackDamage) {
+        if (this.invincibleTime > 0) { return }
         this.health -= Math.max(0, attackDamage - this.defense);
         this.health = Math.max(0, this.health);
+        this.invincibleTime = 40;
     },
 };
 
@@ -98,6 +101,7 @@ function update() {
     if (bulletHit != null) {
         player.damage(bulletList[bulletHit].attack);
     }
+    player.invincibleTime = Math.max(0, player.invincibleTime - 1);
 }
 
 function draw() {
@@ -123,8 +127,6 @@ function draw() {
 }
 
 function drawPlayer(ctx) {
-    ctx.lineWidth = 1;
-
     const { x, y } = player.pos;
 
     const path = new Path2D();
@@ -137,7 +139,11 @@ function drawPlayer(ctx) {
     path.lineTo(x-2, y+20);
     path.closePath();
 
+    ctx.lineWidth = 1;
     ctx.fillStyle = "red";
+    if (player.invincibleTime % 4 == 1) {
+        ctx.fillStyle = "#FF000020";
+    }
     ctx.fill(path);
 }
 
