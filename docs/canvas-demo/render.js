@@ -19,6 +19,31 @@ function clamp(n, min, max) {
     }
 }
 
+//----------------//
+// BULLET CLASSES //
+//----------------//
+
+class CircularBullet {
+    pos = new Vec2();
+    radius = 1;
+    attack = 1;
+    constructor(pos, radius, attack) {
+        this.pos = pos;
+        this.radius = radius;
+        this.attack = attack;
+    }
+
+    intersects(rect) {
+        return rect.intersectCircle(this.pos, this.radius);
+    }
+    draw(ctx) {
+        ctx.fillStyle = "white";
+        ctx.beginPath();
+        ctx.arc(this.pos.x, this.pos.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
 //--------------//
 // GLOBAL STATE //
 //--------------//
@@ -26,6 +51,7 @@ function clamp(n, min, max) {
 var player = {
     pos: new Vec2(720, 770),
     health: 50,
+    defense: 0,
 
     hurtbox() {
         return new Rect(
@@ -33,12 +59,20 @@ var player = {
             30, 20,
         );
     },
+    damage(attackDamage) {
+        this.health -= Math.max(0, attackDamage - this.defense);
+        this.health = Math.max(0, this.health);
+    },
 };
 
 var board = new Rect(
     360, 540,
     720, 460,
 );
+
+var bulletList = [
+    new CircularBullet(new Vec2(500, 800), 20, 1),
+];
 
 var downPressed = false;
 var leftPressed = false;
@@ -59,6 +93,11 @@ function update() {
 
     player.pos.x = clamp(player.pos.x, board.left+25, board.right-25);
     player.pos.y = clamp(player.pos.y, board.top+25, board.bottom-25);
+
+    const bulletHit = playerCollisionCheck(bulletList);
+    if (bulletHit != null) {
+        player.damage(bulletList[bulletHit].attack);
+    }
 }
 
 function draw() {
@@ -77,6 +116,9 @@ function draw() {
 
     drawHealthBar(ctx);
     drawBoard(ctx);
+    for (const bullet of bulletList) {
+        bullet.draw(ctx);
+    }
     drawPlayer(ctx);
 }
 
@@ -123,6 +165,25 @@ function drawBoard(ctx) {
         board.width, board.height,
     );
     ctx.lineWidth = 1;
+}
+
+/**
+ * Checks whether the player is colliding with any of the given bullets.
+ * 
+ * `bullets` should be an `Array` of objects with a `intersects(Rect)` method that
+ * returns a `boolean`.
+ * 
+ * Returns the index of whatever bullet the player collided with, if any (otherwise,
+ * returns `null`)
+*/
+function playerCollisionCheck(bullets) {
+    const playerHurtbox = player.hurtbox();
+    for (const [idx, bullet] of bullets.entries()) {
+        if (bullet.intersects(playerHurtbox)) {
+            return idx;
+        }
+    }
+    return null;
 }
 
 // Should be called every 25ms (40 fps)
