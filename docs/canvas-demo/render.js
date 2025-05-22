@@ -23,17 +23,21 @@ function clamp(n, min, max) {
 // GLOBAL STATE //
 //--------------//
 
-var playerPos = new Vec2(720, 720);
+var player = {
+    pos: new Vec2(720, 770),
 
-var board = {
-    left: 360,
-    right: 1080,
-    top: 540,
-    bottom: 1000,
-
-    width: function() { return this.right-this.left; },
-    height: function() { return this.bottom-this.top; },
+    hurtbox() {
+        return new Rect(
+            this.pos.x - 15, this.pos.y - 15,
+            30, 20,
+        );
+    },
 };
+
+var board = new Rect(
+    360, 540,
+    720, 460,
+);
 
 var downPressed = false;
 var leftPressed = false;
@@ -47,13 +51,13 @@ var rightPressed = false;
 function update() {
     const speedMultiplier = 8;
     
-    if  (downPressed) playerPos.y += speedMultiplier;
-    if    (upPressed) playerPos.y -= speedMultiplier;
-    if  (leftPressed) playerPos.x -= speedMultiplier;
-    if (rightPressed) playerPos.x += speedMultiplier;
+    if  (downPressed) player.pos.y += speedMultiplier;
+    if    (upPressed) player.pos.y -= speedMultiplier;
+    if  (leftPressed) player.pos.x -= speedMultiplier;
+    if (rightPressed) player.pos.x += speedMultiplier;
 
-    playerPos.x = clamp(playerPos.x, board.left+25, board.right-25);
-    playerPos.y = clamp(playerPos.y, board.top+25, board.bottom-25);
+    player.pos.x = clamp(player.pos.x, board.left+25, board.right-25);
+    player.pos.y = clamp(player.pos.y, board.top+25, board.bottom-25);
 }
 
 function draw() {
@@ -77,7 +81,7 @@ function draw() {
 function drawPlayer(ctx) {
     ctx.lineWidth = 1;
 
-    const { x, y } = playerPos;
+    const { x, y } = player.pos;
 
     const path = new Path2D();
     path.moveTo(x+2, y+20);
@@ -98,7 +102,7 @@ function drawBoard(ctx) {
     ctx.strokeStyle = "white";
     ctx.strokeRect(
         board.left, board.top,
-        board.width(), board.height(),
+        board.width, board.height,
     );
     ctx.lineWidth = 1;
 }
