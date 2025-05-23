@@ -130,6 +130,7 @@ function draw() {
     ctx.fillStyle = "lime";
     ctx.fillRect(1435, 10, 5, 1065);
 
+    drawEnemy(ctx);
     drawHealthBar(ctx);
     drawBoard(ctx);
     for (const bullet of bulletList) {
@@ -204,6 +205,20 @@ function playerCollisionCheck(bullets) {
     return null;
 }
 
+//----------------------//
+// ENEMY SPRITE LOADING //
+//----------------------//
+
+// These sprites should be 720x600
+// They are drawn starting from (360, 0)
+
+var enemyLoaded = false;
+function drawEnemy(ctx) {
+    if (!enemyLoaded) { return }
+    const image = document.getElementById("enemy");
+    ctx.drawImage(image, 360, 0);
+}
+
 // Should be called every 25ms (40 fps)
 function frame() {
     update();
@@ -257,6 +272,9 @@ function init() {
         },
         true,
     );
+    // Image loading handler
+    document.getElementById("enemy")
+        .addEventListener("load", (e) => { enemyLoaded = true })
 }
 
 init();
