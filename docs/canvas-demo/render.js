@@ -212,9 +212,7 @@ function playerCollisionCheck(bullets) {
 // These sprites should be 720x600
 // They are drawn starting from (360, 0)
 
-var enemyLoaded = false;
 function drawEnemy(ctx) {
-    if (!enemyLoaded) { return }
     const image = document.getElementById("enemy");
     ctx.drawImage(image, 360, 0);
 }
@@ -272,9 +270,6 @@ function init() {
         },
         true,
     );
-    // Image loading handler
-    document.getElementById("enemy")
-        .addEventListener("load", (e) => { enemyLoaded = true })
 }
 
 init();
