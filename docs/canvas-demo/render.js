@@ -81,13 +81,14 @@ var downPressed = false;
 var leftPressed = false;
 var upPressed = false;
 var rightPressed = false;
+var xPressed = false;
 
 //------------------//
 // UPDATE FUNCTIONS //
 //------------------//
 
 function update() {
-    const speedMultiplier = 8;
+    const speedMultiplier = getPlayerSpeed();
     
     if  (downPressed) player.pos.y += speedMultiplier;
     if    (upPressed) player.pos.y -= speedMultiplier;
@@ -102,6 +103,17 @@ function update() {
         player.damage(bulletList[bulletHit].attack);
     }
     player.invincibleTime = Math.max(0, player.invincibleTime - 1);
+}
+
+/**
+ * Returns the speed of the player in pixels/frame.
+ */
+function getPlayerSpeed() {
+    if (xPressed) {
+        return 4;
+    } else {
+        return 8;
+    }
 }
 
 function draw() {
@@ -198,7 +210,7 @@ function frame() {
     draw();
 }
 
-function arrowKeyHoldSetter(key, isHeld) {
+function keyHoldStateSetter(key, isHeld) {
     switch (key) {
         case "ArrowDown":
             downPressed = isHeld;
@@ -211,6 +223,9 @@ function arrowKeyHoldSetter(key, isHeld) {
             break;
         case "ArrowRight":
             rightPressed = isHeld;
+            break;
+        case "x":
+            xPressed = isHeld;
             break;
     }
 }
@@ -226,7 +241,7 @@ function init() {
         "keydown",
         (event) => {
             if (!event.defaultPrevented) {
-                arrowKeyHoldSetter(event.key, true);
+                keyHoldStateSetter(event.key, true);
                 event.preventDefault();
             }
         },
@@ -236,7 +251,7 @@ function init() {
         "keyup",
         (event) => {
             if (!event.defaultPrevented) {
-                arrowKeyHoldSetter(event.key, false);
+                keyHoldStateSetter(event.key, false);
                 event.preventDefault();
             }
         },
