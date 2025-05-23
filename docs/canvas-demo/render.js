@@ -73,9 +73,7 @@ var board = new Rect(
     720, 460,
 );
 
-var bulletList = [
-    new CircularBullet(new Vec2(500, 800), 20, 1),
-];
+var bulletList = [];
 
 var downPressed = false;
 var leftPressed = false;
@@ -103,6 +101,8 @@ function update() {
         player.damage(bulletList[bulletHit].attack);
     }
     player.invincibleTime = Math.max(0, player.invincibleTime - 1);
+
+    enemyUpdate();
 }
 
 /**
