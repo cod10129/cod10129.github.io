@@ -14,14 +14,22 @@ function clamp(n, min, max) {
 // BULLET CLASSES //
 //----------------//
 
+/** A class defining data that is common to all types of bullets */
+class CommonBulletData {
+    attack = 1;
+    constructor(attack) {
+        this.attack = attack;
+    }
+}
+
 class CircularBullet {
     pos = new Vec2();
     radius = 1;
-    attack = 1;
-    constructor(pos, radius, attack) {
+    common = new CommonBulletData();
+    constructor(pos, radius, common) {
         this.pos = pos;
         this.radius = radius;
-        this.attack = attack;
+        this.common = common;
     }
 
     intersects(rect) {
@@ -66,6 +74,14 @@ var board = new Rect(
 
 var bulletList = [];
 
+/** These should have:
+ * an `update()` and
+ * a `draw(ctx)`.
+ *
+ * The keys are the object ID.
+ */
+var gameObjects = Object.create(null);
+
 var downPressed = false;
 var leftPressed = false;
 var upPressed = false;
@@ -89,11 +105,15 @@ function update() {
 
     const bulletHit = playerCollisionCheck(bulletList);
     if (bulletHit != null) {
-        player.damage(bulletList[bulletHit].attack);
+        player.damage(bulletList[bulletHit].common.attack);
     }
     player.invincibleTime = Math.max(0, player.invincibleTime - 1);
 
-    enemyUpdate();
+    for (const obj of Object.values(gameObjects)) {
+        if (typeof obj.update === "function") {
+            obj.update();
+        }
+    }
 }
 
 /**
@@ -121,9 +141,11 @@ function draw() {
     ctx.fillStyle = "lime";
     ctx.fillRect(1435, 10, 5, 1065);
 
-    drawEnemy(ctx);
-    drawHealthBar(ctx);
-    drawBoard(ctx);
+    for (const obj of Object.values(gameObjects)) {
+        if (typeof obj.draw === "function") {
+            obj.draw(ctx);
+        }
+    }
     for (const bullet of bulletList) {
         bullet.draw(ctx);
     }
@@ -151,32 +173,6 @@ function drawPlayer(ctx) {
     ctx.fill(path);
 }
 
-// Health maximum: 50
-function drawHealthBar(ctx) {
-    ctx.lineWidth = 1;
-
-    ctx.fillStyle = "red";
-    ctx.fillRect(620, 1020, 200, 40);
-    ctx.fillStyle = "yellow";
-    ctx.fillRect(620, 1020, player.health * 4, 40);
-
-    // Textual indicator
-    ctx.font = "48px 'Trouble Beneath The Dome', monospace";
-    ctx.fillStyle = "white";
-    const padded = String(player.health).padStart(2, '0');
-    ctx.fillText(`${padded} / 50`, 850, 1055);
-}
-
-function drawBoard(ctx) {
-    ctx.lineWidth = 10;
-    ctx.strokeStyle = "white";
-    ctx.strokeRect(
-        board.left, board.top,
-        board.width, board.height,
-    );
-    ctx.lineWidth = 1;
-}
-
 /**
  * Checks whether the player is colliding with any of the given bullets.
  * 
@@ -194,18 +190,6 @@ function playerCollisionCheck(bullets) {
         }
     }
     return null;
-}
-
-//----------------------//
-// ENEMY SPRITE LOADING //
-//----------------------//
-
-// These sprites should be 720x600
-// They are drawn starting from (360, 0)
-
-function drawEnemy(ctx) {
-    const image = document.getElementById("enemy");
-    ctx.drawImage(image, 360, 0);
 }
 
 // Should be called every 25ms (40 fps)
@@ -261,6 +245,43 @@ function init() {
         },
         true,
     );
+    // Initialize TLOs (Top-Level Objects)
+    gameObjects['spr_enemy'] = {
+        // These sprites should be 720x600
+        // They are drawn starting from (360, 0)
+        draw: function(ctx) {
+            const image = document.getElementById("enemy");
+            ctx.drawImage(image, 360, 0);
+        }
+    };
+    // Health bar
+    gameObjects['obj_health_bar'] = {
+        draw: function(ctx) {
+            ctx.lineWidth = 1;
+            ctx.fillStyle = "red";
+            ctx.fillRect(620, 1020, 200, 40);
+            ctx.fillStyle = "yellow";
+            ctx.fillRect(620, 1020, player.health * 4, 40);
+
+            // Textual indicator
+            ctx.font = "48px 'Trouble Beneath The Dome', monospace";
+            ctx.fillStyle = "white";
+            const padded = String(player.health).padStart(2, '0');
+            ctx.fillText(`${padded} / 50`, 850, 1055);
+        }
+    };
+    // "Board"
+    gameObjects['obj_bullet_board'] = {
+        draw: function(ctx) {
+            ctx.lineWidth = 10;
+            ctx.strokeStyle = "white";
+            ctx.strokeRect(
+                board.left, board.top,
+                board.width, board.height,
+            );
+            ctx.lineWidth = 1;
+        }
+    };
 }
 
 init();
