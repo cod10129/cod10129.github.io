@@ -43,6 +43,25 @@ class CircularBullet {
     }
 }
 
+class RectangularBullet {
+    shape = new Rect();
+    common = new CommonBulletData();
+    constructor(shape, common) {
+        this.shape = shape;
+        this.common = common;
+    }
+
+    intersects(rect) {
+        return rect.intersectRect(this.shape);
+    }
+    draw(ctx) {
+        ctx.fillStyle = "white";
+        ctx.beginPath();
+        ctx.fillRect(this.shape.x, this.shape.y, this.shape.width, this.shape.height);
+        ctx.fill();
+    }
+}
+
 //--------------//
 // GLOBAL STATE //
 //--------------//

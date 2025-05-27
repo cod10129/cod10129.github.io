@@ -25,11 +25,10 @@ class Rect {
      * Does this `Rect` intersect, at all, the `other` one?
      */
     intersectRect(other) {
-        // Borrowed from https://docs.rs/kurbo/0.11.2/src/kurbo/rect.rs.html#273-275
-        (this.left <= other.right)
+        return (this.left <= other.right)
             && (this.right >= other.left)
             && (this.top <= other.bottom)
-            && (this.bottom >= other.top)
+            && (this.bottom >= other.top);
     }
 
     /**
