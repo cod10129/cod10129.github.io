@@ -247,8 +247,8 @@ function init() {
     );
     // Initialize TLOs (Top-Level Objects)
     gameObjects['spr_enemy'] = {
-        // These sprites should be 720x600
-        // They are drawn starting from (360, 0)
+        // These sprites are drawn starting from (360, 0)
+        // They can be any width/height that fits in the space
         draw: function(ctx) {
             const image = document.getElementById("enemy");
             ctx.drawImage(image, 360, 0);
