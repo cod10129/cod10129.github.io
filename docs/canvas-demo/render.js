@@ -71,6 +71,7 @@ var player = {
     health: 50,
     defense: 0,
     invincibleTime: 0,
+    doBoardClamping: false,
 
     hurtbox() {
         return new Rect(
@@ -119,8 +120,10 @@ function update() {
     if  (leftPressed) player.pos.x -= speedMultiplier;
     if (rightPressed) player.pos.x += speedMultiplier;
 
-    player.pos.x = clamp(player.pos.x, board.left+25, board.right-25);
-    player.pos.y = clamp(player.pos.y, board.top+25, board.bottom-25);
+    if (player.doBoardClamping) {
+        player.pos.x = clamp(player.pos.x, board.left+25, board.right-25);
+        player.pos.y = clamp(player.pos.y, board.top+25, board.bottom-25);
+    }
 
     const bulletHit = playerCollisionCheck(bulletList);
     if (bulletHit != null) {
@@ -307,38 +310,43 @@ function init() {
         letterPaths: [
             // F
             new Path2D(
-                "M 98 10 v4 h2 v2 h2 v68 h-2 v6 h10 v-6 h-2 v-32 h6 v4 h2 v2 h2 v-18" +
-                "h-2 v2 h-2 v2 h-6 v-28 h10 v6 h2 v2 h2 v-14 h-24 Z"
+                "M 61 9 v4 l 3 3 v68 l -2 2 v6 h15 v-6 l -2 -2 v-32" +
+                "h7 v2 h1 v4 h1 v1 h3 v-21 h-3 v1 h-1 v4 h-1 v3 h-7 v-33" +
+                "h9 v1 h1 v1 h1 v2 h1 v3 h1 v5 h1 v2 h4 v-19 h-32"
             ),
             // I
             new Path2D(
-                "M 126 10 v6 h2 v68 h-2 v6 h12 v-6 h-2 v-68 h2 v-6 Z"
+                "M 98 9 v4 l 3 3 v68 l -3 3 v5 h16 v-5 l -3 -3 v-68 l 3 -3 v-5 h-16"
             ),
             // G
             new Path2D(
-                "M 158 58 h10 v6 h-2 v22 h-2 v2 h-2 v2 h-10 v-2 h-2 v-2 h-2 v-2 h-2" +
-                "v-4 h-2 v-54 h2 v-8 h2 v-4 h2 v-2 h2 v-2 h10 v2 h2 v2 h2 v18 h-4" +
-                "v-14 h-2 v-2 h-6 v2 h-2 v8 h-2 v52 h2 v4 h2 v2 h6 v-20 h-2 v-6 Z"
+                "M 137 58 h16 v4 h-1 v2 h-1 v2 h-1 v23 h-1 v1 h-1 v1 h-2 v1 h-16" +
+                "v-1 h-2 v-1 h-1 v-1 h-1 v-1 h-1 v-1 h-1 v-2 h-1 v-1 h-1 v-2 h-1" +
+                "v-2 h-1 v-3 h-1 v-3 h-1 v-7 h-1 v-26 h1 v-7 h1 v-4 h1 v-3 h1 v-4" +
+                "h1 v-1 h1 v-4 h1 v-1 h1 v-2 h1 v-1 h1 v-1 h1 v-1 h1 v-1 h1 v-1 h1 v-1" +
+                "h11 v1 h3 v1 h1 v1 h1 v3 h1 v4 h1 v2 h1 v12 h-4 v-4 h-1 v-3 h-1" +
+                "v-3 h-1 v-4 h-1 v-2 h-2 v-1 h-1 v-1 h-6 v1 h-1 v2 h-1 v2 h-1 v6 h-1" +
+                "v10 h-1 v28 h1 v10 h1 v6 h1 v3 h1 v2 h1 v1 h1 v2 h5 v-2 h1 v-2 h1 v-18" +
+                "h-1 v-1 h-1 v-1 h-1 v-1 h-1 v-5" 
             ),
             // H
             new Path2D(
-                "M 170 10 h14 v6 h-2 v2 h-2 v26 h12 v-26 h-2 v-2 h-2 v-6 h14 v6" +
-                "h-2 v2 h-2 v64 h2 v2 h2 v6 h-14 v-6 h2 v-2 h2 v-30 h-12 v30 h2 v2 h2" +
-                "v6 h-14 v-6 h2 v-2 h2 v-64 h-2 v-2 h-2 v-6"
+                "M 157 9 v6 l 2 2 v67 l -2 2 v6 h16 v-6 l -2 -2 v-33 h10 v33 l -2 2 v6" +
+                "h16 v-6 l -2 -2 v-67 l 2 -2 v-6 h-16 v6 l 2 2 v27 h-10 v-27 l 2 -2 v-6"
             ),
             // T
             new Path2D(
-                "M 204 10 h26 v18 h-4 v-10 h-2 v-2 h-4 v68 h2 v6 h-10 v-6 h2 v-68" +
-                "h-4 v2 h-2 v10 h-4 v-18"
+                "M 198 9 v17 h3 v-4 h1 v-4 h1 v-2 h1 v-1 h6 v69 l -2 2 v6 h17 v-6" +
+                "l -2 -2 v-69 h6 v1 h1 v2 h1 v4 h1 v4 h3 v-17 Z"
             ),
         ],
         draw: function(ctx) {
             ctx.lineWidth = 4;
             ctx.strokeStyle = "orange";
             ctx.fillStyle = "orange";
-            ctx.strokeRect(50, 50, 240, 100);
+            ctx.strokeRect(30, 50, 240, 100);
             const prevTransform = ctx.getTransform();
-            ctx.translate(50, 50);
+            ctx.translate(30, 50);
             for (const path of this.letterPaths) {
                 ctx.fill(path);
             }
