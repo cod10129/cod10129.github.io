@@ -310,34 +310,27 @@ function init() {
         letterPaths: [
             // F
             new Path2D(
-                "M 61 9 v4 l 3 3 v68 l -2 2 v6 h15 v-6 l -2 -2 v-32" +
-                "h7 v2 h1 v4 h1 v1 h3 v-21 h-3 v1 h-1 v4 h-1 v3 h-7 v-33" +
-                "h9 v1 h1 v1 h1 v2 h1 v3 h1 v5 h1 v2 h4 v-19 h-32"
+                "M 93 5 v11 l -3 -3 h-17 v32 h18 v10 h-18 v37 l 3 3 h-11 l -1 -1" +
+                "v-87 l 2 -2 Z"
             ),
             // I
             new Path2D(
-                "M 98 9 v4 l 3 3 v68 l -3 3 v5 h16 v-5 l -3 -3 v-68 l 3 -3 v-5 h-16"
+                "M 99 5 h29 v11 l -3 -3 h-7 v74 h7 l 3 -3 v11 h-29 v-11" +
+                "l 3 3 h7 v-74 h-7 l -3 3 Z"
             ),
             // G
             new Path2D(
-                "M 137 58 h16 v4 h-1 v2 h-1 v2 h-1 v23 h-1 v1 h-1 v1 h-2 v1 h-16" +
-                "v-1 h-2 v-1 h-1 v-1 h-1 v-1 h-1 v-1 h-1 v-2 h-1 v-1 h-1 v-2 h-1" +
-                "v-2 h-1 v-3 h-1 v-3 h-1 v-7 h-1 v-26 h1 v-7 h1 v-4 h1 v-3 h1 v-4" +
-                "h1 v-1 h1 v-4 h1 v-1 h1 v-2 h1 v-1 h1 v-1 h1 v-1 h1 v-1 h1 v-1 h1 v-1" +
-                "h11 v1 h3 v1 h1 v1 h1 v3 h1 v4 h1 v2 h1 v12 h-4 v-4 h-1 v-3 h-1" +
-                "v-3 h-1 v-4 h-1 v-2 h-2 v-1 h-1 v-1 h-6 v1 h-1 v2 h-1 v2 h-1 v6 h-1" +
-                "v10 h-1 v28 h1 v10 h1 v6 h1 v3 h1 v2 h1 v1 h1 v2 h5 v-2 h1 v-2 h1 v-18" +
-                "h-1 v-1 h-1 v-1 h-1 v-1 h-1 v-5" 
+                "M 161 40 h-9 v-27 h-11 v72 h11 v-27 h-5 v-1 h-1 v-6 h1 v-1 h12 l 2 2" +
+                "v41 l -2 2 h-25 l -2 -2 v-86 l 2 -2 h25 l 2 2 Z"
             ),
             // H
             new Path2D(
-                "M 157 9 v6 l 2 2 v67 l -2 2 v6 h16 v-6 l -2 -2 v-33 h10 v33 l -2 2 v6" +
-                "h16 v-6 l -2 -2 v-67 l 2 -2 v-6 h-16 v6 l 2 2 v27 h-10 v-27 l 2 -2 v-6"
+                "M 167 5 h7 l 2 2 v38 h11 v-38 l 2 -2 h7 v90 h-7 l -2 -2 v-37 h-11" +
+                "v37 l -2 2 h-7 Z"
             ),
             // T
             new Path2D(
-                "M 198 9 v17 h3 v-4 h1 v-4 h1 v-2 h1 v-1 h6 v69 l -2 2 v6 h17 v-6" +
-                "l -2 -2 v-69 h6 v1 h1 v2 h1 v4 h1 v4 h3 v-17 Z"
+                "M 201 5 h29 v11 l -3 -3 h-7 v78 l 4 4 h-17 l 4 -4 v-78 h-7 l -3 3 Z"
             ),
         ],
         draw: function(ctx) {
