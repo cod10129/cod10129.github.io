@@ -301,6 +301,50 @@ function init() {
             ctx.lineWidth = 1;
         }
     };
+    // FIGHT button
+    gameObjects['obj_gui_fight'] = {
+        currentlySelected: false,
+        letterPaths: [
+            // F
+            new Path2D(
+                "M 98 10 v4 h2 v2 h2 v68 h-2 v6 h10 v-6 h-2 v-32 h6 v4 h2 v2 h2 v-18" +
+                "h-2 v2 h-2 v2 h-6 v-28 h10 v6 h2 v2 h2 v-14 h-24 Z"
+            ),
+            // I
+            new Path2D(
+                "M 126 10 v6 h2 v68 h-2 v6 h12 v-6 h-2 v-68 h2 v-6 Z"
+            ),
+            // G
+            new Path2D(
+                "M 158 58 h10 v6 h-2 v22 h-2 v2 h-2 v2 h-10 v-2 h-2 v-2 h-2 v-2 h-2" +
+                "v-4 h-2 v-54 h2 v-8 h2 v-4 h2 v-2 h2 v-2 h10 v2 h2 v2 h2 v18 h-4" +
+                "v-14 h-2 v-2 h-6 v2 h-2 v8 h-2 v52 h2 v4 h2 v2 h6 v-20 h-2 v-6 Z"
+            ),
+            // H
+            new Path2D(
+                "M 170 10 h14 v6 h-2 v2 h-2 v26 h12 v-26 h-2 v-2 h-2 v-6 h14 v6" +
+                "h-2 v2 h-2 v64 h2 v2 h2 v6 h-14 v-6 h2 v-2 h2 v-30 h-12 v30 h2 v2 h2" +
+                "v6 h-14 v-6 h2 v-2 h2 v-64 h-2 v-2 h-2 v-6"
+            ),
+            // T
+            new Path2D(
+                "M 204 10 h26 v18 h-4 v-10 h-2 v-2 h-4 v68 h2 v6 h-10 v-6 h2 v-68" +
+                "h-4 v2 h-2 v10 h-4 v-18"
+            ),
+        ],
+        draw: function(ctx) {
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = "orange";
+            ctx.fillStyle = "orange";
+            ctx.strokeRect(50, 50, 240, 100);
+            const prevTransform = ctx.getTransform();
+            ctx.translate(50, 50);
+            for (const path of this.letterPaths) {
+                ctx.fill(path);
+            }
+            ctx.setTransform(prevTransform);
+        }
+    };
 }
 
 init();
