@@ -346,6 +346,42 @@ function init() {
             ctx.setTransform(prevTransform);
         }
     };
+    gameObjects['obj_gui_act'] = {
+        currentlySelected: false,
+        letterPaths: [
+            // These absolute values are a hack.
+            // But I LoVe hacks. (/s)
+            // A (top half)
+            new Path2D(
+                "M 113 5 l 2 2 v38 h-15 v-23 l -3 -3 h-15 l -3 3 v23 H65 v-38 l 2 -2 Z"
+            ),
+            // A (bottom)
+            new Path2D(
+                "M 65 45 H115 v50 h-18 l 3 -3 v-35 h-21 v35 l 3 3 H65 v-50 Z"
+            ),
+            // C
+            new Path2D(
+                "M 158 49 h15 v44 l -2 2 h-46 l -2 -2 v-86 l 2 -2 h47 l 2 2 v27 h-15" +
+                "v-12 l -3 -3 h-15 l -3 3 v54 l 3 3 h15 l 3 -3 Z"
+            ),
+            // T
+            new Path2D(
+                "M 229 5 v18 l -3 -3 h-14 v70 l 5 5 h-25 l 5 -5 v-70 h-15 l -3 3 v-18 Z"
+            )
+        ],
+        draw: function(ctx) {
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = "orange";
+            ctx.fillStyle = "orange";
+            ctx.strokeRect(30, 170, 240, 100);
+            const prevTransform = ctx.getTransform();
+            ctx.translate(30, 170);
+            for (const path of this.letterPaths) {
+                ctx.fill(path);
+            }
+            ctx.setTransform(prevTransform);
+        }
+    }
 }
 
 init();
