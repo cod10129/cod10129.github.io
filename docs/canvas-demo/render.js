@@ -373,6 +373,30 @@ function init() {
         ],
         draw: function(ctx) { drawUiButton(150, ctx, this.letterPaths) },
     };
+    gameObjects['obj_gui_item'] = {
+        currentlySelected: false,
+        letterPaths: [
+            // I
+            new Path2D(
+                "M 101 5 v13 l -3 -3 h-11 v70 h11 l 3 -3 v13 h-38 v-13 l 3 3 h11 v-70" +
+                "h-11 l -3 3 v-13 Z"
+            ),
+            // T
+            new Path2D(
+                "M 107 5 h38 v13 l -3 -3 h-11 v75 l 5 5 h-20 l 5 -5 v-75 h-11 l -3 3 Z"
+            ),
+            // E
+            // I'm aware this doesn't exactly match item-button-ref.png, and I don't care
+            new Path2D(
+                "M 150 5 h35 v13 l -3 -3 h-22 v30 h22 v10 h-22 v30 h22 l 3 -3 v13 h-35 Z"
+            ),
+            // M
+            new Path2D(
+                "M 190 5 h10 l 10 30 l 10 -30 h10 v90 h-10 v-65 l -10 30 l -10 -30 v65 h-10 Z"
+            ),
+        ],
+        draw: function(ctx) { drawUiButton(270, ctx, this.letterPaths) },
+    };
 }
 
 init();
