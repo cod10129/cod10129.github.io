@@ -317,7 +317,6 @@ function init() {
             ctx.lineWidth = 1;
         }
     };
-    // FIGHT button
     gameObjects['obj_gui_fight'] = {
         currentlySelected: false,
         letterPaths: [
@@ -396,6 +395,39 @@ function init() {
             ),
         ],
         draw: function(ctx) { drawUiButton(270, ctx, this.letterPaths) },
+    };
+    gameObjects['obj_gui_mercy'] = {
+        currentlySelected: false,
+        letterPaths: [
+            // M
+            new Path2D(
+                "M 65 5 h8 l 7 30 l 7 -30 h8 v90 h-8 V25 l -7 30 l -7 -30 V95 h-8 Z"
+            ),
+            // E
+            new Path2D(
+                "M 99 5 h29 v11 l -3 -3 h-18 v33 h19 v8 h-19 v33 h18 l 3 -3 v11 h-29 Z"
+            ),
+            // R (top)
+            new Path2D(
+                "M 135 5 h25 l 2 2 v30 h-10 l 2 -2 v-20 l -2 -2 h-9 l -2 2 v20 l 2 2" +
+                "H 133 V 7 l 2 -2"
+            ),
+            // R (bottom)
+            new Path2D(
+                "M 133 37 h29 v7 l -2 2 h-9 l 11 11 v38 h-8 v-32 l -14 -14 V95 h-8 Z"
+            ),
+            // C
+            new Path2D(
+                "M 196 33 h-8 v-17 l -3 -3 h-7 l -3 3 V85 l 3 3 h7 l 3 -3 v-36 h8 v44" +
+                "l -2 2 h-25 l -2 -2 v-86 l 2 -2 h25 l 2 2 Z"
+            ),
+            // Y
+            new Path2D(
+                "M 201 5 h9 v32 l 6 14 l 6 -14 v-32 h9 v36 l -10 20 V95 h-10 v-36" +
+                "l -10 -20 Z"
+            ),
+        ],
+        draw: function(ctx) { drawUiButton(390, ctx, this.letterPaths) },
     };
 }
 
