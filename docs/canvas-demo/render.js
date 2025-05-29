@@ -195,6 +195,19 @@ function drawPlayer(ctx) {
     ctx.fill(path);
 }
 
+function drawUiButton(y, ctx, paths) {
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = "orange";
+    ctx.fillStyle = "orange";
+    const prevTransform = ctx.getTransform();
+    ctx.translate(30, y);
+    ctx.strokeRect(0, 0, 240, 100);
+    for (const path of paths) {
+        ctx.fill(path);
+    }
+    ctx.setTransform(prevTransform);
+}
+
 /**
  * Checks whether the player is colliding with any of the given bullets.
  * 
@@ -333,18 +346,7 @@ function init() {
                 "M 201 5 h29 v11 l -3 -3 h-7 v78 l 4 4 h-17 l 4 -4 v-78 h-7 l -3 3 Z"
             ),
         ],
-        draw: function(ctx) {
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = "orange";
-            ctx.fillStyle = "orange";
-            ctx.strokeRect(30, 50, 240, 100);
-            const prevTransform = ctx.getTransform();
-            ctx.translate(30, 50);
-            for (const path of this.letterPaths) {
-                ctx.fill(path);
-            }
-            ctx.setTransform(prevTransform);
-        }
+        draw: function(ctx) { drawUiButton(30, ctx, this.letterPaths) },
     };
     gameObjects['obj_gui_act'] = {
         currentlySelected: false,
@@ -369,19 +371,8 @@ function init() {
                 "M 229 5 v18 l -3 -3 h-14 v70 l 5 5 h-25 l 5 -5 v-70 h-15 l -3 3 v-18 Z"
             )
         ],
-        draw: function(ctx) {
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = "orange";
-            ctx.fillStyle = "orange";
-            ctx.strokeRect(30, 170, 240, 100);
-            const prevTransform = ctx.getTransform();
-            ctx.translate(30, 170);
-            for (const path of this.letterPaths) {
-                ctx.fill(path);
-            }
-            ctx.setTransform(prevTransform);
-        }
-    }
+        draw: function(ctx) { drawUiButton(150, ctx, this.letterPaths) },
+    };
 }
 
 init();
