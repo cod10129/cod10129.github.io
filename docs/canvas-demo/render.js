@@ -164,7 +164,7 @@ function draw() {
     ctx.fillRect(1435, 10, 5, 1065);
 
     for (const obj of Object.values(gameObjects)) {
-        if (typeof obj.draw === "function") {
+        if (typeof obj.draw === "function" && obj.visible !== false) {
             obj.draw(ctx);
         }
     }
