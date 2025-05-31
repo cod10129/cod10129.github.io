@@ -396,35 +396,40 @@ function init() {
         ],
         draw: function(ctx) { drawUiButton(270, ctx, this.letterPaths) },
     };
-    gameObjects['obj_gui_mercy'] = {
+    gameObjects['obj_gui_spare'] = {
         currentlySelected: false,
         letterPaths: [
-            // M
+            // S
             new Path2D(
-                "M 65 5 h8 l 7 30 l 7 -30 h8 v90 h-8 V25 l -7 30 l -7 -30 V95 h-8 Z"
+                "M 93 5 v8 h-19 l -2 2 v28 l 2 2 h17 l 2 2 v46 l -2 2 h-27 v-8 h19" +
+                "l 2 -2 v-30 l -2 -2 h-17 l -2 -2 v-44 l 2 -2 Z"
             ),
-            // E
+            // P (top)
             new Path2D(
-                "M 99 5 h29 v11 l -3 -3 h-18 v33 h19 v8 h-19 v33 h18 l 3 -3 v11 h-29 Z"
+                "M 128 41 h-11 l 3 -3 v-22 l -3 -3 h-7 l -3 3 v22 l 3 3 h-11 v-34" +
+                "l 2 -2 h25 l 2 2 Z"
             ),
+            // P (bottom)
+            new Path2D("M 99 41 h29 v6 l -2 2 h-19 V93 l 2 2 h-10 Z"),
+            // A (top)
+            new Path2D(
+                "M 162 41 h-11 l 3 -3 v-22 l -3 -3 h-7 l -3 3 v22 l 3 3 h-11 v-34" +
+                "l 2 -2 h25 l 2 2 Z"
+            ),
+            // A (bottom)
+            new Path2D("M 133 41 h29 v54 h-10 l 2 -2 v-44 h-13 v44 l 2 2 h-10 Z"),
             // R (top)
             new Path2D(
-                "M 135 5 h25 l 2 2 v30 h-10 l 2 -2 v-20 l -2 -2 h-9 l -2 2 v20 l 2 2" +
-                "H 133 V 7 l 2 -2"
+                "M 169 5 h25 l 2 2 v30 h-10 l 2 -2 v-20 l -2 -2 h-9 l -2 2 v20 l 2 2" +
+                "H 167 V 7 l 2 -2"
             ),
             // R (bottom)
             new Path2D(
-                "M 133 37 h29 v7 l -2 2 h-9 l 11 11 v38 h-8 v-32 l -14 -14 V95 h-8 Z"
+                "M 167 37 h29 v7 l -2 2 h-9 l 11 11 v38 h-8 v-32 l -13 -13 V95 h-8 Z"
             ),
-            // C
+            // E
             new Path2D(
-                "M 196 33 h-8 v-17 l -3 -3 h-7 l -3 3 V85 l 3 3 h7 l 3 -3 v-36 h8 v44" +
-                "l -2 2 h-25 l -2 -2 v-86 l 2 -2 h25 l 2 2 Z"
-            ),
-            // Y
-            new Path2D(
-                "M 201 5 h9 v32 l 6 14 l 6 -14 v-32 h9 v36 l -10 20 V95 h-10 v-36" +
-                "l -10 -20 Z"
+                "M 201 5 h29 v11 l -3 -3 h-18 v33 h19 v8 h-19 v33 h18 l 3 -3 v11 h-29 Z"
             ),
         ],
         draw: function(ctx) { drawUiButton(390, ctx, this.letterPaths) },
