@@ -1,5 +1,47 @@
 "use strict";
 
+/**
+ * A generic helper class for performing smooth transitions between one value to another
+ * over the course of multiple frames via linear interpolation.
+ */
+class SmoothTransitionHelper {
+    initialValue;
+    endingValue;
+    animationTime;
+    framesElapsed;
+    /**
+     * The function used for interpolating between `start` and `end`.
+     * It is expected to be callable as `lerpFunction(t, initialValue, endingValue)`
+     * where `t: float`. If not specified, it will use `math-utils.js`'s `lerp()`.
+     */
+    lerpFunction;
+    /** A function of (`the_current_position`) => void */
+    outputSetter;
+    constructor(start, end, animationTime, setter, lerpFunc = null) {
+        this.initialValue = start;
+        this.endingValue = end;
+        this.animationTime = animationTime;
+        this.framesElapsed = 0;
+        this.outputSetter = setter;
+        if (!lerpFunc) {
+            this.lerpFunction = lerp;
+        } else {
+            this.lerpFunction = lerpFunc;
+        }
+    }
+
+    update(objKey) {
+        this.framesElapsed += 1;
+        const completedFraction = this.framesElapsed / this.animationTime;
+        this.outputSetter(
+            this.lerpFunction(completedFraction, this.initialValue, this.endingValue)
+        );
+        if (this.framesElapsed >= this.animationTime) {
+            delete gameObjects[objKey];
+        }
+    }
+}
+
 //----------------//
 // BULLET CLASSES //
 //----------------//
@@ -61,7 +103,7 @@ var player = {
     health: 50,
     defense: 0,
     invincibleTime: 0,
-    doBoardClamping: false,
+    doBoardClamping: true,
 
     hurtbox() {
         return new Rect(
@@ -85,12 +127,19 @@ var board = new Rect(
 var bulletList = [];
 
 /** These should have:
- * an `update()` and
- * a `draw(ctx)`.
+ * - an `update(object_key_in_gameObjects)` (Since JS, update() can just ignore it)
+ * - a `draw(ctx)`.
  *
  * The keys are the object ID.
  */
 var gameObjects = Object.create(null);
+
+/**
+ * The phases are:
+ * - `"player_turn"` (it's the player's turn to select an action)
+ * - `"enemy_turn"` (enemy's attacking)
+ */
+var gamePhase = "enemy_turn";
 
 var downPressed = false;
 var leftPressed = false;
@@ -103,12 +152,14 @@ var xPressed = false;
 //------------------//
 
 function update() {
-    const speedMultiplier = getPlayerSpeed();
-    
-    if  (downPressed) player.pos.y += speedMultiplier;
-    if    (upPressed) player.pos.y -= speedMultiplier;
-    if  (leftPressed) player.pos.x -= speedMultiplier;
-    if (rightPressed) player.pos.x += speedMultiplier;
+    // Only allow free player movement if it's enemy attacking time
+    if (gamePhase === "enemy_turn") {
+        const speedMultiplier = getPlayerSpeed();
+        if  (downPressed) player.pos.y += speedMultiplier;
+        if    (upPressed) player.pos.y -= speedMultiplier;
+        if  (leftPressed) player.pos.x -= speedMultiplier;
+        if (rightPressed) player.pos.x += speedMultiplier;
+    }
 
     if (player.doBoardClamping) {
         player.pos.x = clamp(player.pos.x, board.left+25, board.right-25);
@@ -121,9 +172,9 @@ function update() {
     }
     player.invincibleTime = Math.max(0, player.invincibleTime - 1);
 
-    for (const obj of Object.values(gameObjects)) {
+    for (const [key, obj] of Object.entries(gameObjects)) {
         if (typeof obj.update === "function") {
-            obj.update();
+            obj.update(key);
         }
     }
 }
@@ -185,17 +236,32 @@ function drawPlayer(ctx) {
     ctx.fill(path);
 }
 
-function drawUiButton(y, ctx, paths) {
+function drawUiButton(y, ctx, obj) {
+    let color;
+    if (obj.currentlySelected) { color = "yellow" }
+    else { color = "orange" }
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+
     ctx.lineWidth = 4;
-    ctx.strokeStyle = "orange";
-    ctx.fillStyle = "orange";
     const prevTransform = ctx.getTransform();
     ctx.translate(30, y);
     ctx.strokeRect(0, 0, 240, 100);
-    for (const path of paths) {
+    for (const path of obj.letterPaths) {
         ctx.fill(path);
     }
     ctx.setTransform(prevTransform);
+}
+
+function playerTurnTransition() {
+    gamePhase = "player_turn";
+    player.doBoardClamping = false;
+    gameObjects['obj_slide_player'] = new SmoothTransitionHelper(
+        player.pos, new Vec2(60, 80),
+        10,
+        (pos) => { player.pos = pos },
+        (t, start, end) => Vec2.lerp(t, start, end),
+    );
 }
 
 /**
@@ -335,7 +401,7 @@ function init() {
                 "M 201 5 h29 v11 l -3 -3 h-7 v78 l 4 4 h-17 l 4 -4 v-78 h-7 l -3 3 Z"
             ),
         ],
-        draw: function(ctx) { drawUiButton(30, ctx, this.letterPaths) },
+        draw: function(ctx) { drawUiButton(30, ctx, this) },
     };
     gameObjects['obj_gui_act'] = {
         currentlySelected: false,
@@ -360,7 +426,7 @@ function init() {
                 "M 229 5 v18 l -3 -3 h-14 v70 l 5 5 h-25 l 5 -5 v-70 h-15 l -3 3 v-18 Z"
             )
         ],
-        draw: function(ctx) { drawUiButton(150, ctx, this.letterPaths) },
+        draw: function(ctx) { drawUiButton(150, ctx, this) },
     };
     gameObjects['obj_gui_item'] = {
         currentlySelected: false,
@@ -384,7 +450,7 @@ function init() {
                 "M 190 5 h10 l 10 30 l 10 -30 h10 v90 h-10 v-65 l -10 30 l -10 -30 v65 h-10 Z"
             ),
         ],
-        draw: function(ctx) { drawUiButton(270, ctx, this.letterPaths) },
+        draw: function(ctx) { drawUiButton(270, ctx, this) },
     };
     gameObjects['obj_gui_spare'] = {
         currentlySelected: false,
@@ -422,7 +488,7 @@ function init() {
                 "M 201 5 h29 v11 l -3 -3 h-18 v33 h19 v8 h-19 v33 h18 l 3 -3 v11 h-29 Z"
             ),
         ],
-        draw: function(ctx) { drawUiButton(390, ctx, this.letterPaths) },
+        draw: function(ctx) { drawUiButton(390, ctx, this) },
     };
 }
 

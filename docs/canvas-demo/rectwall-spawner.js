@@ -5,25 +5,28 @@
  */
 
 gameObjects['obj_enemy_walldemo'] = {
-    // Loops through 0..60 forever
+    // Counts up from 0 to 320
     frameCounter: -1,
     update: function() {
+        if (gamePhase !== "enemy_turn") { return }
+        if (this.frameCounter >= 320) {
+            playerTurnTransition();
+            bulletList = bulletList.filter(b => b.creator !== "obj_enemy_walldemo");
+            return;
+        }
+        this.frameCounter += 1;
         // Make sure these are correctly set
         board.y = 510;
         board.height = 490;
 
-        this.frameCounter += 1;
-        if (this.frameCounter >= 60) {
-            this.frameCounter = 0;
-        }
-        let myBullets = bulletList.filter(b => b.creator == "obj_enemy_walldemo");
+        let myBullets = bulletList.filter(b => b.creator === "obj_enemy_walldemo");
         myBullets.forEach(bullet => bullet.shape.x -= 10);
 
         bulletList = bulletList.filter(bullet =>
-            (bullet.creator != "obj_enemy_walldemo") || (bullet.shape.x > 0)
+            (bullet.creator !== "obj_enemy_walldemo") || (bullet.shape.x > 0)
         );
 
-        if (this.frameCounter !== 0) {
+        if ((this.frameCounter % 60) !== 0) {
             return;
         }
         // Otherwise:
