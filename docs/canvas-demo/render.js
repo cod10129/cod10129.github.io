@@ -147,11 +147,20 @@ var upPressed = false;
 var rightPressed = false;
 var xPressed = false;
 
+var downJustPressed = false;
+var upJustPressed = false;
+
 //------------------//
 // UPDATE FUNCTIONS //
 //------------------//
 
 function update() {
+    if (gamePhase === "player_turn") {
+        if (downJustPressed || upJustPressed) {
+            guiMove(upJustPressed);
+        }
+    }
+
     // Only allow free player movement if it's enemy attacking time
     if (gamePhase === "enemy_turn") {
         const speedMultiplier = getPlayerSpeed();
@@ -177,6 +186,9 @@ function update() {
             obj.update(key);
         }
     }
+
+    if (downJustPressed) { downJustPressed = false }
+    if   (upJustPressed) { upJustPressed = false }
 }
 
 /**
@@ -187,6 +199,45 @@ function getPlayerSpeed() {
         return 4;
     } else {
         return 8;
+    }
+}
+
+//----------------------//
+// GUI UPDATE FUNCTIONS //
+//----------------------//
+
+/** If given `true`, moves UP. If given `false`, moves DOWN. */
+function guiMove(dirUp) {
+    // The order of the GUI buttons from top to bottom, with wraparound entries.
+    const lookupTable = [
+        'obj_gui_spare',
+        'obj_gui_fight', 'obj_gui_act', 'obj_gui_item', 'obj_gui_spare',
+        'obj_gui_fight',
+    ];
+    // Find the button that's currently selected (and unselect it)
+    let currentSelectionIndex;
+    for (const [idx, buttonId] of lookupTable.entries()) {
+        // Make sure to not attempt to move back from the *first* 'obj_gui_spare'
+        if (idx === 0) { continue }
+        if (gameObjects[buttonId].currentlySelected) {
+            gameObjects[buttonId].currentlySelected = false;
+            currentSelectionIndex = idx;
+        }
+    }
+    // If there is no selected button, just ignore the movement entirely
+    if (currentSelectionIndex === undefined) { return }
+    if (dirUp) {
+        const newSelection = lookupTable[currentSelectionIndex - 1];
+        gameObjects[newSelection].currentlySelected = true;
+        // Move the player up
+        if (currentSelectionIndex === 1) { player.pos.y += 360 }
+        else { player.pos.y -= 120 }
+    } else {
+        const newSelection = lookupTable[currentSelectionIndex + 1];
+        gameObjects[newSelection].currentlySelected = true;
+        // Move the player down
+        if (currentSelectionIndex === 4) { player.pos.y -= 360 }
+        else { player.pos.y += 120 }
     }
 }
 
@@ -262,6 +313,10 @@ function playerTurnTransition() {
         (pos) => { player.pos = pos },
         (t, start, end) => Vec2.lerp(t, start, end),
     );
+    scheduleTask(
+        () => { gameObjects['obj_gui_fight'].currentlySelected = true },
+        10,
+    );
 }
 
 /**
@@ -283,6 +338,21 @@ function playerCollisionCheck(bullets) {
     return null;
 }
 
+var nextTaskId = 1n;
+/** Schedules a specified `task` to be run in a given number of frames. */
+function scheduleTask(task, frames) {
+    gameObjects[`obj_scheduledtask_${nextTaskId++}`] = {
+        remainingTime: frames,
+        task: task,
+        update: function(name) {
+            if (this.remainingTime-- === 0) {
+                this.task();
+                delete gameObjects[name];
+            }
+        },
+    };
+}
+
 // Should be called every 25ms (40 fps)
 function frame() {
     update();
@@ -293,9 +363,11 @@ function keyHoldStateSetter(key, isHeld) {
     switch (key) {
         case "ArrowDown":
             downPressed = isHeld;
+            if (isHeld) { downJustPressed = true }
             break;
         case "ArrowUp":
             upPressed = isHeld;
+            if (isHeld) { upJustPressed = true }
             break;
         case "ArrowLeft":
             leftPressed = isHeld;
