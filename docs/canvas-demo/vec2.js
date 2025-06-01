@@ -6,9 +6,27 @@ class Vec2 {
         this.y = y;
     }
 
+    /** Linearly interpolates between `start` and `end` on both the X and Y axes. */
+    static lerp(t, start, end) {
+        return new Vec2(
+            lerp(t, start.x, end.x),
+            lerp(t, start.y, end.y),
+        );
+    }
+
+    toString() {
+        return `(${this.x}, ${this.y})`;
+    }
+
+    /** Returns a new `Vec2` that is not associated with `this`. */
+    clone() {
+        return new Vec2(this.x, this.y);
+    }
+
     length() {
         return Math.sqrt((this.x * this.x) + (this.y * this.y));
     }
+
     normalized() {
         const lengthRecip = 1 / this.length();
         return new Vec2(
@@ -16,6 +34,7 @@ class Vec2 {
             this.y * lengthRecip,
         );
     }
+
     /** The given `angle` should be in radians. */
     rotate(angle) {
         const length = this.length();
