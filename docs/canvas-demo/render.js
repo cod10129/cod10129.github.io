@@ -214,31 +214,21 @@ function guiMove(dirUp) {
         'obj_gui_fight', 'obj_gui_act', 'obj_gui_item', 'obj_gui_spare',
         'obj_gui_fight',
     ];
-    // Find the button that's currently selected (and unselect it)
-    let currentSelectionIndex;
-    for (const [idx, buttonId] of lookupTable.entries()) {
-        // Make sure to not attempt to move back from the *first* 'obj_gui_spare'
-        if (idx === 0) { continue }
-        if (gameObjects[buttonId].highlighted) {
-            gameObjects[buttonId].highlighted = false;
-            currentSelectionIndex = idx;
-        }
-    }
+    // Find the index (in lookupTable) of the currently highlighted button
+    const currentHighlightLutIndex = 1 + lookupTable
+        .slice(1)
+        .findIndex(buttonId => gameObjects[buttonId].highlighted);
     // If there is no selected button, just ignore the movement entirely
-    if (currentSelectionIndex === undefined) { return }
-    if (dirUp) {
-        const newSelection = lookupTable[currentSelectionIndex - 1];
-        gameObjects[newSelection].highlighted = true;
-        // Move the player up
-        if (currentSelectionIndex === 1) { player.pos.y += 360 }
-        else { player.pos.y -= 120 }
-    } else {
-        const newSelection = lookupTable[currentSelectionIndex + 1];
-        gameObjects[newSelection].highlighted = true;
-        // Move the player down
-        if (currentSelectionIndex === 4) { player.pos.y -= 360 }
-        else { player.pos.y += 120 }
-    }
+    if (currentHighlightLutIndex === (-1 + 1)) { return }
+    // Unselect the current button
+    const highlightedButtonId = lookupTable[currentHighlightLutIndex];
+    gameObjects[highlightedButtonId].highlighted = false;
+
+    let offset;
+    if (dirUp) { offset = -1 } else { offset = 1 }
+    const newHighlight = lookupTable[currentHighlightLutIndex + offset];
+    gameObjects[newHighlight].highlighted = true;
+    player.pos.y = gameObjects[newHighlight].baseYPosition + 50;
 }
 
 function draw() {
