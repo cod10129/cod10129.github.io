@@ -219,8 +219,8 @@ function guiMove(dirUp) {
     for (const [idx, buttonId] of lookupTable.entries()) {
         // Make sure to not attempt to move back from the *first* 'obj_gui_spare'
         if (idx === 0) { continue }
-        if (gameObjects[buttonId].currentlySelected) {
-            gameObjects[buttonId].currentlySelected = false;
+        if (gameObjects[buttonId].highlighted) {
+            gameObjects[buttonId].highlighted = false;
             currentSelectionIndex = idx;
         }
     }
@@ -228,13 +228,13 @@ function guiMove(dirUp) {
     if (currentSelectionIndex === undefined) { return }
     if (dirUp) {
         const newSelection = lookupTable[currentSelectionIndex - 1];
-        gameObjects[newSelection].currentlySelected = true;
+        gameObjects[newSelection].highlighted = true;
         // Move the player up
         if (currentSelectionIndex === 1) { player.pos.y += 360 }
         else { player.pos.y -= 120 }
     } else {
         const newSelection = lookupTable[currentSelectionIndex + 1];
-        gameObjects[newSelection].currentlySelected = true;
+        gameObjects[newSelection].highlighted = true;
         // Move the player down
         if (currentSelectionIndex === 4) { player.pos.y -= 360 }
         else { player.pos.y += 120 }
@@ -287,16 +287,16 @@ function drawPlayer(ctx) {
     ctx.fill(path);
 }
 
-function drawUiButton(y, ctx, obj) {
+function drawUiButton(ctx, obj) {
     let color;
-    if (obj.currentlySelected) { color = "yellow" }
+    if (obj.highlighted) { color = "yellow" }
     else { color = "orange" }
     ctx.strokeStyle = color;
     ctx.fillStyle = color;
 
     ctx.lineWidth = 4;
     const prevTransform = ctx.getTransform();
-    ctx.translate(30, y);
+    ctx.translate(30, obj.baseYPosition);
     ctx.strokeRect(0, 0, 240, 100);
     for (const path of obj.letterPaths) {
         ctx.fill(path);
@@ -314,7 +314,7 @@ function playerTurnTransition() {
         (t, start, end) => Vec2.lerp(t, start, end),
     );
     scheduleTask(
-        () => { gameObjects['obj_gui_fight'].currentlySelected = true },
+        () => { gameObjects['obj_gui_fight'].highlighted = true },
         10,
     );
 }
@@ -446,7 +446,8 @@ function init() {
         }
     };
     gameObjects['obj_gui_fight'] = {
-        currentlySelected: false,
+        highlighted: false,
+        baseYPosition: 30,
         letterPaths: [
             // F
             new Path2D(
@@ -473,10 +474,11 @@ function init() {
                 "M 201 5 h29 v11 l -3 -3 h-7 v78 l 4 4 h-17 l 4 -4 v-78 h-7 l -3 3 Z"
             ),
         ],
-        draw: function(ctx) { drawUiButton(30, ctx, this) },
+        draw: function(ctx) { drawUiButton(ctx, this) },
     };
     gameObjects['obj_gui_act'] = {
-        currentlySelected: false,
+        highlighted: false,
+        baseYPosition: 150,
         letterPaths: [
             // These absolute values are a hack.
             // But I LoVe hacks. (/s)
@@ -498,10 +500,11 @@ function init() {
                 "M 229 5 v18 l -3 -3 h-14 v70 l 5 5 h-25 l 5 -5 v-70 h-15 l -3 3 v-18 Z"
             )
         ],
-        draw: function(ctx) { drawUiButton(150, ctx, this) },
+        draw: function(ctx) { drawUiButton(ctx, this) },
     };
     gameObjects['obj_gui_item'] = {
-        currentlySelected: false,
+        highlighted: false,
+        baseYPosition: 270,
         letterPaths: [
             // I
             new Path2D(
@@ -522,10 +525,11 @@ function init() {
                 "M 190 5 h10 l 10 30 l 10 -30 h10 v90 h-10 v-65 l -10 30 l -10 -30 v65 h-10 Z"
             ),
         ],
-        draw: function(ctx) { drawUiButton(270, ctx, this) },
+        draw: function(ctx) { drawUiButton(ctx, this) },
     };
     gameObjects['obj_gui_spare'] = {
-        currentlySelected: false,
+        highlighted: false,
+        baseYPosition: 390,
         letterPaths: [
             // S
             new Path2D(
@@ -560,7 +564,7 @@ function init() {
                 "M 201 5 h29 v11 l -3 -3 h-18 v33 h19 v8 h-19 v33 h18 l 3 -3 v11 h-29 Z"
             ),
         ],
-        draw: function(ctx) { drawUiButton(390, ctx, this) },
+        draw: function(ctx) { drawUiButton(ctx, this) },
     };
 }
 
