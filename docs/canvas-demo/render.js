@@ -140,6 +140,7 @@ class MainGuiButton {
             3,
             (y) => { gameObjects[this.detatchedObjId].baseYPosition = y },
         );
+        if (this.detatchedObjId === 'obj_gui_item') { initItemSelection() }
     }
 }
 
@@ -167,6 +168,15 @@ var player = {
         this.invincibleTime = 40;
     },
 };
+
+/**
+ * The player's items.
+ * Each has, at least, a `name` field.
+ */
+var inventory = [
+    { name: "ButsDont" },
+    { name: "TstItem2" },
+];
 
 var board = new Rect(
     360, 540,
@@ -315,6 +325,23 @@ function playerTurnTransition() {
     );
     gameObjects['obj_gui_main'].movementEnabled = true;
     gameObjects['obj_gui_main'].highlightIndex = 0;
+}
+
+function initItemSelection() {
+    const choices = inventory.map((item, idx) => new Object({
+        index: idx,
+        name: item.name,
+        draw(ctx) {
+            ctx.font = "50px '8-Bit Operator JVE', monospace";
+            ctx.fillStyle = "white";
+            const yPos = 190 + (55 * this.index);
+            ctx.fillText(`*  ${this.name}`, 50, yPos);
+        },
+    }));
+    gameObjects['obj_gui_itemselector'] = new GuiSelectionTool(
+        choices, 0, true,
+        () => {},
+    );
 }
 
 /**
