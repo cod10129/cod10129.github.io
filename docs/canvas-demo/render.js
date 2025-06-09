@@ -94,6 +94,55 @@ class RectangularBullet {
     }
 }
 
+//-------------//
+// GUI BUTTONS //
+//-------------//
+
+/**
+ * Designed to be inserted into `gameObjects['obj_gui_main']`, a `GuiSelectionTool`.
+ */
+class MainGuiButton {
+    /** A `Path2D[]`. */
+    paths = [];
+    baseYPosition;
+    detatchedObjId;
+
+    constructor(paths, baseYPosition, name) {
+        this.paths = paths;
+        this.baseYPosition = baseYPosition;
+        this.detatchedObjId = name;
+    }
+
+    draw(ctx, highlighted) {
+        const color = highlighted ? "yellow" : "orange";
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.lineWidth = 4;
+
+        const prevTransform = ctx.getTransform();
+        ctx.translate(30, this.baseYPosition);
+        ctx.strokeRect(0, 0, 240, 100);
+        for (const path of this.paths) {
+            ctx.fill(path);
+        }
+        ctx.setTransform(prevTransform);
+    }
+
+    select() {
+        gameObjects[this.detatchedObjId] = {
+            paths: this.paths,
+            baseYPosition: this.baseYPosition,
+            draw(ctx) { MainGuiButton.prototype.draw.call(this, ctx, true) }
+        };
+        postUpdateThunks.push(() => { delete gameObjects['obj_gui_main'] });
+        gameObjects['obj_button_smooth_select'] = new SmoothTransitionHelper(
+            this.baseYPosition, 30,
+            3,
+            (y) => { gameObjects[this.detatchedObjId].baseYPosition = y },
+        );
+    }
+}
+
 //--------------//
 // GLOBAL STATE //
 //--------------//
@@ -147,6 +196,16 @@ var upPressed = false;
 var rightPressed = false;
 var xPressed = false;
 
+var upJustPressed = false;
+var downJustPressed = false;
+var zJustPressed = false;
+
+/**
+ * An array of `f(): void`, to run after all `gameObjects` are updated.
+ * These will only run once, at the end of the current `update()`.
+ */
+var postUpdateThunks = [];
+
 //------------------//
 // UPDATE FUNCTIONS //
 //------------------//
@@ -177,6 +236,15 @@ function update() {
             obj.update(key);
         }
     }
+
+    for (const thunk of postUpdateThunks) {
+        thunk();
+    }
+    postUpdateThunks.length = 0;
+
+    upJustPressed = false;
+    downJustPressed = false;
+    zJustPressed = false;
 }
 
 /**
@@ -236,32 +304,17 @@ function drawPlayer(ctx) {
     ctx.fill(path);
 }
 
-function drawUiButton(y, ctx, obj) {
-    let color;
-    if (obj.currentlySelected) { color = "yellow" }
-    else { color = "orange" }
-    ctx.strokeStyle = color;
-    ctx.fillStyle = color;
-
-    ctx.lineWidth = 4;
-    const prevTransform = ctx.getTransform();
-    ctx.translate(30, y);
-    ctx.strokeRect(0, 0, 240, 100);
-    for (const path of obj.letterPaths) {
-        ctx.fill(path);
-    }
-    ctx.setTransform(prevTransform);
-}
-
 function playerTurnTransition() {
     gamePhase = "player_turn";
     player.doBoardClamping = false;
     gameObjects['obj_slide_player'] = new SmoothTransitionHelper(
         player.pos, new Vec2(60, 80),
-        10,
+        5,
         (pos) => { player.pos = pos },
         (t, start, end) => Vec2.lerp(t, start, end),
     );
+    gameObjects['obj_gui_main'].movementEnabled = true;
+    gameObjects['obj_gui_main'].highlightIndex = 0;
 }
 
 /**
@@ -293,9 +346,11 @@ function keyHoldStateSetter(key, isHeld) {
     switch (key) {
         case "ArrowDown":
             downPressed = isHeld;
+            if (isHeld) { downJustPressed = true }
             break;
         case "ArrowUp":
             upPressed = isHeld;
+            if (isHeld) { upJustPressed = true }
             break;
         case "ArrowLeft":
             leftPressed = isHeld;
@@ -305,6 +360,9 @@ function keyHoldStateSetter(key, isHeld) {
             break;
         case "x":
             xPressed = isHeld;
+            break;
+        case "z":
+            if (isHeld) { zJustPressed = true }
             break;
     }
 }
@@ -373,123 +431,18 @@ function init() {
             ctx.lineWidth = 1;
         }
     };
-    gameObjects['obj_gui_fight'] = {
-        currentlySelected: false,
-        letterPaths: [
-            // F
-            new Path2D(
-                "M 93 5 v11 l -3 -3 h-17 v32 h18 v10 h-18 v37 l 3 3 h-11 l -1 -1" +
-                "v-87 l 2 -2 Z"
-            ),
-            // I
-            new Path2D(
-                "M 99 5 h29 v11 l -3 -3 h-7 v74 h7 l 3 -3 v11 h-29 v-11" +
-                "l 3 3 h7 v-74 h-7 l -3 3 Z"
-            ),
-            // G
-            new Path2D(
-                "M 161 40 h-9 v-27 h-11 v72 h11 v-27 h-5 v-1 h-1 v-6 h1 v-1 h12 l 2 2" +
-                "v41 l -2 2 h-25 l -2 -2 v-86 l 2 -2 h25 l 2 2 Z"
-            ),
-            // H
-            new Path2D(
-                "M 167 5 h7 l 2 2 v38 h11 v-38 l 2 -2 h7 v90 h-7 l -2 -2 v-37 h-11" +
-                "v37 l -2 2 h-7 Z"
-            ),
-            // T
-            new Path2D(
-                "M 201 5 h29 v11 l -3 -3 h-7 v78 l 4 4 h-17 l 4 -4 v-78 h-7 l -3 3 Z"
-            ),
+    // Main GUI (Fight, Act, Item, Spare)
+    gameObjects['obj_gui_main'] = new GuiSelectionTool(
+        [
+            new MainGuiButton(fightPaths, 30, 'obj_gui_fight'),
+            new MainGuiButton(actPaths, 150, 'obj_gui_act'),
+            new MainGuiButton(itemPaths, 270, 'obj_gui_item'),
+            new MainGuiButton(sparePaths, 390, 'obj_gui_spare'),
         ],
-        draw: function(ctx) { drawUiButton(30, ctx, this) },
-    };
-    gameObjects['obj_gui_act'] = {
-        currentlySelected: false,
-        letterPaths: [
-            // These absolute values are a hack.
-            // But I LoVe hacks. (/s)
-            // A (top half)
-            new Path2D(
-                "M 113 5 l 2 2 v38 h-15 v-23 l -3 -3 h-15 l -3 3 v23 H65 v-38 l 2 -2 Z"
-            ),
-            // A (bottom)
-            new Path2D(
-                "M 65 45 H115 v50 h-18 l 3 -3 v-35 h-21 v35 l 3 3 H65 v-50 Z"
-            ),
-            // C
-            new Path2D(
-                "M 158 49 h15 v44 l -2 2 h-46 l -2 -2 v-86 l 2 -2 h47 l 2 2 v27 h-15" +
-                "v-12 l -3 -3 h-15 l -3 3 v54 l 3 3 h15 l 3 -3 Z"
-            ),
-            // T
-            new Path2D(
-                "M 229 5 v18 l -3 -3 h-14 v70 l 5 5 h-25 l 5 -5 v-70 h-15 l -3 3 v-18 Z"
-            )
-        ],
-        draw: function(ctx) { drawUiButton(150, ctx, this) },
-    };
-    gameObjects['obj_gui_item'] = {
-        currentlySelected: false,
-        letterPaths: [
-            // I
-            new Path2D(
-                "M 101 5 v13 l -3 -3 h-11 v70 h11 l 3 -3 v13 h-38 v-13 l 3 3 h11 v-70" +
-                "h-11 l -3 3 v-13 Z"
-            ),
-            // T
-            new Path2D(
-                "M 107 5 h38 v13 l -3 -3 h-11 v75 l 5 5 h-20 l 5 -5 v-75 h-11 l -3 3 Z"
-            ),
-            // E
-            // I'm aware this doesn't exactly match item-button-ref.png, and I don't care
-            new Path2D(
-                "M 150 5 h35 v13 l -3 -3 h-22 v30 h22 v10 h-22 v30 h22 l 3 -3 v13 h-35 Z"
-            ),
-            // M
-            new Path2D(
-                "M 190 5 h10 l 10 30 l 10 -30 h10 v90 h-10 v-65 l -10 30 l -10 -30 v65 h-10 Z"
-            ),
-        ],
-        draw: function(ctx) { drawUiButton(270, ctx, this) },
-    };
-    gameObjects['obj_gui_spare'] = {
-        currentlySelected: false,
-        letterPaths: [
-            // S
-            new Path2D(
-                "M 93 5 v8 h-19 l -2 2 v28 l 2 2 h17 l 2 2 v46 l -2 2 h-27 v-8 h19" +
-                "l 2 -2 v-30 l -2 -2 h-17 l -2 -2 v-44 l 2 -2 Z"
-            ),
-            // P (top)
-            new Path2D(
-                "M 128 41 h-11 l 3 -3 v-22 l -3 -3 h-7 l -3 3 v22 l 3 3 h-11 v-34" +
-                "l 2 -2 h25 l 2 2 Z"
-            ),
-            // P (bottom)
-            new Path2D("M 99 41 h29 v6 l -2 2 h-19 V93 l 2 2 h-10 Z"),
-            // A (top)
-            new Path2D(
-                "M 162 41 h-11 l 3 -3 v-22 l -3 -3 h-7 l -3 3 v22 l 3 3 h-11 v-34" +
-                "l 2 -2 h25 l 2 2 Z"
-            ),
-            // A (bottom)
-            new Path2D("M 133 41 h29 v54 h-10 l 2 -2 v-44 h-13 v44 l 2 2 h-10 Z"),
-            // R (top)
-            new Path2D(
-                "M 169 5 h25 l 2 2 v30 h-10 l 2 -2 v-20 l -2 -2 h-9 l -2 2 v20 l 2 2" +
-                "H 167 V 7 l 2 -2"
-            ),
-            // R (bottom)
-            new Path2D(
-                "M 167 37 h29 v7 l -2 2 h-9 l 11 11 v38 h-8 v-32 l -13 -13 V95 h-8 Z"
-            ),
-            // E
-            new Path2D(
-                "M 201 5 h29 v11 l -3 -3 h-18 v33 h19 v8 h-19 v33 h18 l 3 -3 v11 h-29 Z"
-            ),
-        ],
-        draw: function(ctx) { drawUiButton(390, ctx, this) },
-    };
+        null,
+        false,
+        (idx) => { player.pos.y = 80 + (idx * 120) },
+    );
 }
 
 init();
