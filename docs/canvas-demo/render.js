@@ -104,6 +104,7 @@ var player = {
     defense: 0,
     invincibleTime: 0,
     doBoardClamping: true,
+    allowGuiMovement: true,
 
     hurtbox() {
         return new Rect(
@@ -149,6 +150,7 @@ var xPressed = false;
 
 var downJustPressed = false;
 var upJustPressed = false;
+var zJustPressed = false;
 
 //------------------//
 // UPDATE FUNCTIONS //
@@ -156,8 +158,13 @@ var upJustPressed = false;
 
 function update() {
     if (gamePhase === "player_turn") {
-        if (downJustPressed || upJustPressed) {
+        if (allowGuiMovement && (downJustPressed || upJustPressed)) {
             guiMove(upJustPressed);
+        }
+        if (zJustPressed) {
+            if (gameObjects['obj_gui_item'].highlighted) {
+                selectItemButton();
+            }
         }
     }
 
@@ -189,6 +196,7 @@ function update() {
 
     if (downJustPressed) { downJustPressed = false }
     if   (upJustPressed) { upJustPressed = false }
+    if    (zJustPressed) { zJustPressed = false }
 }
 
 /**
@@ -294,6 +302,21 @@ function drawUiButton(ctx, obj) {
     ctx.setTransform(prevTransform);
 }
 
+function selectItemButton() {
+    player.allowGuiMovement = false;
+    gameObjects['obj_gui_fight'].visible = false;
+    gameObjects['obj_gui_act'].visible = false;
+    gameObjects['obj_gui_spare'].visible = false;
+    gameObjects['obj_smooth_itemselection'] = new SmoothTransitionHelper(
+        gameObjects['obj_gui_item'].baseYPosition, 30,
+        3,
+        (y) => {
+            gameObjects['obj_gui_item'].baseYPosition = y;
+            player.pos.y = y + 50;
+        },
+    );
+}
+
 function playerTurnTransition() {
     gamePhase = "player_turn";
     player.doBoardClamping = false;
@@ -367,6 +390,9 @@ function keyHoldStateSetter(key, isHeld) {
             break;
         case "x":
             xPressed = isHeld;
+            break;
+        case "z":
+            if (isHeld) { zJustPressed = true }
             break;
     }
 }
